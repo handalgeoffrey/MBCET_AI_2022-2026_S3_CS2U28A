@@ -1,0 +1,106 @@
+from tkinter import *
+from PIL import ImageTk, Image
+
+task_list = []
+
+def openTaskFile():
+    try:
+        global task_list
+        with open("tasklist.txt", "r") as taskfile:
+            tasks = taskfile.readlines()
+
+        for task in tasks:
+            if task.strip():  # Check if the task is not empty after stripping whitespace
+                task_list.append(task.strip())
+                listbox.insert(END, task.strip())
+    except FileNotFoundError:
+        with open("tasklist.txt", "w"):
+            pass  # Create an empty file if it doesn't exist
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+def addTask():
+    task = task_entry.get().strip()
+    task_entry.delete(0, END)
+
+    if task:
+        with open("tasklist.txt", "a") as taskfile:
+            taskfile.write(f"\n{task}")
+        task_list.append(task)
+        listbox.insert(END, task)
+
+def deleteTask():
+    selected_task = listbox.get(ANCHOR)
+    if selected_task in task_list:
+        task_list.remove(selected_task)
+        with open("tasklist.txt", "w") as taskfile:
+            for task in task_list:
+                taskfile.write(task + '\n')
+        listbox.delete(ANCHOR)
+
+root = Tk()
+root.title("ToDo List")
+root.geometry("400x650+400+100")
+root.resizable(False, False)
+
+# icon
+Image_icon = PhotoImage(file="D:/programming/images/list.png")
+root.iconphoto(False, Image_icon)
+
+# top bar
+TopImage = ImageTk.PhotoImage(file="d:/programming/images/top.png")
+Label(root, image=TopImage).pack()
+
+# dockImage
+#dockImage = Image.open("d:/programming/images/menu (2).png")
+#resized_dockImage = dockImage.resize((40, 40))
+#dockImage1 = ImageTk.PhotoImage(resized_dockImage)
+#Label(root, image=dockImage1, bg="#9addd5").place(x=15, y=32)
+
+# noteimage
+#noteImage = Image.open("d:/programming/images/list.png")
+#resized_noteImage = noteImage.resize((40, 40))
+#noteImage1 = ImageTk.PhotoImage(resized_noteImage)
+#Label(root, image=noteImage1, bg="#9addd5").place(x=340, y=35)
+
+heading = Label(root, text="ALL TASK", font="arial 20 bold", fg="black", bg="#9bded5")
+heading.place(x=135, y=40)
+
+# main
+frame = Frame(root, width=400, height=50, bg="white")
+frame.place(x=0, y=180)
+
+task = StringVar()
+task_entry = Entry(frame, width=18, font="arial 20", bd=0, textvariable=task)
+task_entry.place(x=10, y=7)
+task_entry.focus()
+
+# button to add
+button_image = Image.open("d:/programming/images/button.png")
+resized_button = button_image.resize((40, 40))
+button_image1 = ImageTk.PhotoImage(resized_button)
+button = Button(root, image=button_image1, bg="white", fg="#fff", command=addTask)
+button.place(x=345, y=182)
+
+# listbox to store task
+frame1 = Frame(root, bd=3, width=700, height=280, bg="#c0eae5")
+frame1.pack(pady=(160, 0))
+
+listbox = Listbox(frame1, font=('arial', 12), width=40, height=16, bg="#c0eae5", fg="black", cursor="hand2", selectbackground="#5a95ff")
+listbox.pack(side=LEFT, fill=BOTH, padx=2)
+scrollbar = Scrollbar(frame1)
+scrollbar.pack(side=RIGHT, fill=BOTH)
+
+listbox.config(yscrollcommand=scrollbar.set)
+scrollbar.config(command=listbox.yview)
+
+openTaskFile()
+
+# delete
+delete_icon = Image.open("d:/programming/images/trash.png")
+resized3 = delete_icon.resize((30, 30))
+delete_icon1 = ImageTk.PhotoImage(resized3)
+Button(root, image=delete_icon1, bd=0, command=deleteTask).pack(side=BOTTOM, pady=13)
+
+root.mainloop()
+
